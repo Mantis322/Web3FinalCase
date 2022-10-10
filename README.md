@@ -24,6 +24,14 @@ http://localhost:3000
 ```
 adresine gidip kullandığınız wallet'ı web sitesine bağlamalısınız.
 
+Daha sonra bir açık arttırma launchlamanız gerekiyor. Gerekli adımları izleyerek açık arttırma launchlayınız.
+```
+->truffle console
+let instance = await FinalCase.deployed()
+instance.launch("Açık arttırma ismi","Sembol","Açık Attırma Süresi(Dk)")
+```
+
+
 ## Final Case Documentation
 
 The purpose of this contract is to describe how a non-confidential (confidentiality of auction addresses) auction is 
@@ -49,3 +57,11 @@ For the Website after running code above
 http://localhost:3000
 ```
 Go to the this address and connect the wallet you use to the website.
+
+Next you need to launch an bid. Start the bid by following the necessary steps.
+
+```
+->truffle console
+let instance = await FinalCase.deployed()
+instance.launch("BidName","Symbol","BidTime(Min)")
+```
