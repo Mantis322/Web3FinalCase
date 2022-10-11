@@ -2,6 +2,14 @@
 
 ## Final Case Dökümantasyonu
 
+V.2 Update:
+
+- Select box eklendi(Css'i yapılmadı).
+- React contract adress kısmı hala çalışmıyor
+- Fonksiyonlara alert eklendi.
+
+
+
 Bu kontratın amacı, gizli olmayan(açık artırmaya katılan adreslerin gizli tutulması) bir açık artırmanın genel olarak nasıl
 olduğunu anlamak ve bunun bir simülasyonunu oluşturmaktır.
 
@@ -33,6 +41,12 @@ instance.launch("Açık arttırma ismi","Sembol","Açık Attırma Süresi(Dk)")
 
 
 ## Final Case Documentation
+
+V.2 Update:
+
+- Select box added(Css still waiting to coding).
+- In react page, contract address input not working.
+- Alert has been added to the functions.
 
 The purpose of this contract is to describe how a non-confidential (confidentiality of auction addresses) auction is
 generally held.
