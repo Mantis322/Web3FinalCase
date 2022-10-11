@@ -21,7 +21,6 @@ contract FinalCase {
     //@dev id can be deleted. In this time it's redundant
     //Identify some token information
     struct Token{
-        uint id;
         string name;
         string symbol;
         bool ended;
@@ -36,7 +35,7 @@ contract FinalCase {
     mapping(uint => mapping(address => uint)) pledgedAmount;
 
     //Declaring count to use as a mapping id
-    uint private count;
+    uint public count;
 
     //a modifier so that only the owner can take action
     modifier onlyOwner {
@@ -47,37 +46,24 @@ contract FinalCase {
     function getOwner()public view returns(address){
         return owner;
     }
-
-    //Getting token name in mapping index 1
-    function getTokenName() public view returns(string memory){
-        return (tokens[1].name);
+    function getAll() public view returns(Token[] memory){
+        Token[] memory temp = new Token[](count);
+        for (uint i = 0; i < count; i++) {
+            temp[i] = tokens[i];
+        }
+        return temp;
     }
 
-    //Getting token symbol in mapping index 1
-    function getTokenSymbol() public view returns(string memory){
-        return (tokens[1].symbol);
-    }
-
-    //Getting token bid in mapping index 1
-    function getTokenBid()public view returns(uint){
-        return (tokens[1].highestBid);
-    }
-
-    //Getting highest bidder in mapping index 1
-    function getTokenBidder()public view returns(address){
-        return (tokens[1].highestBidder);
-    }
 
 
     //Function to create Token
     function launch(string memory _tokenName,string memory _symbol,uint _endAt) public onlyOwner{
 
-        //Declaring token id
-        count+=1;
+
+
 
         //Entering token information and adding tokens mapping
         tokens[count] = Token({
-        id: count,
         name: _tokenName,
         symbol: _symbol,
         ended: false,
@@ -86,7 +72,8 @@ contract FinalCase {
         highestBid: 0
 
         });
-
+        //Declaring token id
+        count+=1;
 
         //Trriger the LogLaunch event
         emit LogLaunch(count, msg.sender, tokens[count].endTime);
@@ -97,7 +84,7 @@ contract FinalCase {
     //Function for transfer of monet to owner after Bid ends
     function end(uint _id) public payable onlyOwner{
         //Getting token in tokens map
-        Token memory token = tokens[_id];
+        Token storage token = tokens[_id];
         //Declaring require for the function to work
         require(block.timestamp >= token.endTime, "Not yet ended");
         require(!token.ended,"Already called");
@@ -157,7 +144,10 @@ contract FinalCase {
                 pledgedAmount[_id][msg.sender] = amount;
                 return false;
             }
+        }else{
+            return false;
         }
+
         return true;
     }
 

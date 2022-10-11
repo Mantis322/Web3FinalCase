@@ -1,24 +1,27 @@
 import styles from '../styles/Home.module.css'
-import { useState, useEffect } from "react"
-import { ethers } from 'ethers'
+import {useState, useEffect} from "react"
+import {ethers} from 'ethers'
 import useConnection from '../hooks/useConnection'
 import useContract from '../hooks/useContract'
-import {finalcaseaddress, patikaadress} from '../config'
+import {finalcaseaddress} from '../config.js'
 import finalcase from "../build/contracts/FinalCase.json"
+import {console} from "next/dist/compiled/@edge-runtime/primitives/console";
 
 
 export default function Home() {
 
-    const [contractAddr, setContractAddr] = useState();
+    const [contractAddr, setContractAddr] = useState("");
     const [bidAmount, setBidAmount] = useState();
     const [contractInfo, setContractInfo] = useState({
-        address: "-",
+        ended: "-",
         tokenName: "-",
         tokenSymbol: "-",
         highestBid: "-"
     });
-    const [highestBidder, setHighestBidder]= useState();
-
+    const [highestBidder, setHighestBidder] = useState("");
+    const [contractTokens, setContractTokens] = useState([]);
+    let selectedValue;
+    const [deneme, setDeneme] = useState();
 
 
     const connection = useConnection();
@@ -27,41 +30,108 @@ export default function Home() {
     useEffect(() => {
         connection.connect()
 
+
     }, [connection.address])
 
+    useEffect(() => {
+
+
+    }, [deneme]);
+
+    useEffect(() => {
+        console.log(contractAddr)
+
+    }, [contractAddr]);
+
+
     const getContractInfo = async (e) => {
-        e.preventDefault();
 
 
-        const tokenName = (await contract.getTokenName()).toString();
-        const tokenSymbol = (await contract.getTokenSymbol()).toString();
-        const tokenBid = (await contract.getTokenBid()).toString();
-        const tokenBidder = (await contract.getTokenBidder()).toString();
+        let getAll = await contract.getAll();
+        let countId = Number(await contract.count());
 
-        console.log(tokenName,tokenSymbol,tokenBid);
+        setContractTokens((v) => [...v, {value: "", text: "Select a Contract"}]);
+
+        for (let i = 0; i < countId; i++) {
+
+            setContractTokens((v) => [...v, {value: i, text: getAll[i].name + " " + getAll[i].symbol}]);
+        }
+
+
+    }
+
+
+    const getTokenTable = async (e) => {
+        let getAll = await contract.getAll();
+        let currentTime = Math.round(Date.now() / 1000);
+        let endTime = Number(getAll[deneme].endTime);
 
         setContractInfo({
-            tokenName: tokenName,
-            tokenSymbol: tokenSymbol,
-            highestBid: tokenBid
-        });
-        setHighestBidder(tokenBidder);
-    };
+            tokenName: getAll[deneme].name,
+            tokenSymbol: getAll[deneme].symbol,
+            highestBid: Number(getAll[deneme].highestBid),
+
+        })
+
+        setHighestBidder(getAll[deneme].highestBidder)
+
+
+    }
+
 
     const makeaBid = async (e) => {
-        await contract.bid(`1`, { value: ethers.utils.parseEther(bidAmount) });
+        let getAll = await contract.getAll();
+        let currentTime = Math.round(Date.now()/1000);
+        let endTime = Number(getAll[deneme].endTime);
+        if (bidAmount === undefined) {
+            alert("Please enter a Amount")
+        } else {
+            if (currentTime< endTime){
+                let getAll = await contract.getAll();
+
+                if (getAll[deneme].ended == false) {
+                    await contract.bid(deneme, {value: ethers.utils.parseEther(bidAmount)});
+                } else {
+                    alert("Bid Already Ended")
+                }
+            }else {
+                alert("Time is end")
+            }
+
+
+        }
+
+
     }
     const withdraw = async (e) => {
-        await contract.withdraw(`1`);
+
+        let isSuccess = await contract.withdraw(deneme);
+
+        if (isSuccess){
+            alert("Successfuly withdraw")
+        }else{
+            alert("Withdraw failed")
+        }
+
     }
 
     const endedTokenClaim = async (e) => {
-        const tokenOwner = (await contract.getOwner).toString();
-        if((connection.address) == (await contract.getOwner()).toString()){
-            await contract.end(`1`);
-        }else {
-            console.log("You are not owner");
-        }
+        let getAll = await contract.getAll();
+        let currentTime = Math.round(Date.now() / 1000);
+        let endTime = Number(getAll[deneme].endTime);
+        let tokenOwner = await contract.getOwner();
+
+            if (connection.address == tokenOwner) {
+                if (currentTime >= endTime) {
+                    await contract.end(deneme);
+                } else {
+                    alert(`There is still ${Math.floor((endTime-currentTime)/60)} min to end the bid`)
+                }
+            } else {
+                alert("You are not owner");
+            }
+
+
 
     }
 
@@ -70,18 +140,40 @@ export default function Home() {
 
         <div className={styles.login_box}>
             <h2>TOKEN BID </h2>
-            <form >
-                <div className={styles.user_box} >
-                    <input placeholder='Contract Adress Here' value={contractAddr} onChange={(e) => setContractAddr(e.target.value)} />
+            <form>
+                <div className={styles.user_box}>
+                    <input placeholder='Contract Adress Here' onChange={(e) => setContractAddr(e.target.value)}/>
                 </div>
 
 
-                <a href="#/" onClick={getContractInfo} >
+                <a href="#/" onClick={getContractInfo}>
                     <span></span>
                     <span></span>
                     <span></span>
                     <span></span>
                     Get Contract
+                </a>
+            </form>
+
+            <div className={styles.select_box} >
+                <select onChange={(e) => setDeneme(e.target.value)} name="tokens" id="token-select" >
+                    {contractTokens.map((category, index) => {
+                        return (
+                            <option key={index} value={category.value}>
+                                {category.text}
+                            </option>
+                        );
+                    })}
+                </select>
+            </div>
+
+            <form>
+                <a href="#/" onClick={getTokenTable}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    Get Token
                 </a>
             </form>
 
@@ -99,6 +191,7 @@ export default function Home() {
                         </thead>
                     </table>
                 </div>
+
                 <div className={styles.tbl_content}>
                     <table cellPadding="0" cellSpacing="0" border="0">
                         <tbody>
@@ -112,10 +205,11 @@ export default function Home() {
 
                         </tbody>
                     </table>
+
                 </div>
 
-                <div className={styles.user_box_bidest}  >
-                    <input  placeholder='Highest Bider' disabled value={highestBidder}/>
+                <div className={styles.user_box_bidest}>
+                    <input placeholder='Highest Bider' disabled value={highestBidder}/>
                 </div>
 
 
@@ -124,11 +218,11 @@ export default function Home() {
             <h2>MAKE A BID </h2>
 
 
-            <div className={styles.user_box_bid} >
-                <input placeholder='Bid Amount Here' value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} />
+            <div className={styles.user_box_bid}>
+                <input placeholder='Bid Amount Here' value={bidAmount} onChange={(e) => setBidAmount(e.target.value)}/>
             </div>
             <form>
-                <a href="#/" onClick={makeaBid} >
+                <a href="#/" onClick={makeaBid}>
                     <span></span>
                     <span></span>
                     <span></span>
@@ -137,7 +231,7 @@ export default function Home() {
                 </a>
             </form>
             <form>
-                <a href="#/" onClick={withdraw} >
+                <a href="#/" onClick={withdraw}>
                     <span></span>
                     <span></span>
                     <span></span>
@@ -147,7 +241,7 @@ export default function Home() {
             </form>
 
             <form>
-                <a href="#/" onClick={endedTokenClaim} >
+                <a href="#/" onClick={endedTokenClaim}>
                     <span></span>
                     <span></span>
                     <span></span>
@@ -155,6 +249,7 @@ export default function Home() {
                     End(Only for Token Owner)
                 </a>
             </form>
+
 
         </div>
 

@@ -1,8 +1,8 @@
 
 
-## Final Case Dökümantasyonu 
+## Final Case Dökümantasyonu
 
-Bu kontratın amacı, gizli olmayan(açık artırmaya katılan adreslerin gizli tutulması) bir açık artırmanın genel olarak nasıl 
+Bu kontratın amacı, gizli olmayan(açık artırmaya katılan adreslerin gizli tutulması) bir açık artırmanın genel olarak nasıl
 olduğunu anlamak ve bunun bir simülasyonunu oluşturmaktır.
 
 Solidity kodunu şuradan bulabilirsiniz.
@@ -34,7 +34,7 @@ instance.launch("Açık arttırma ismi","Sembol","Açık Attırma Süresi(Dk)")
 
 ## Final Case Documentation
 
-The purpose of this contract is to describe how a non-confidential (confidentiality of auction addresses) auction is 
+The purpose of this contract is to describe how a non-confidential (confidentiality of auction addresses) auction is
 generally held.
 
 You can find Solidity code  here.
@@ -48,10 +48,10 @@ This contract is based on the frontend over next.js.
 ```
 npm run dev
 ```
-You can interact with the contract by running the command but first you must have deployed the contract . The website interacts 
+You can interact with the contract by running the command but first you must have deployed the contract . The website interacts
 with the contract address deployed on the test network.
 
-For the Website after running code above 
+For the Website after running code above
 
 ```
 http://localhost:3000
