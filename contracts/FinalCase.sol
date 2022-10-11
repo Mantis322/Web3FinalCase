@@ -46,6 +46,7 @@ contract FinalCase {
     function getOwner()public view returns(address){
         return owner;
     }
+    //Getting all mapping as a array output
     function getAll() public view returns(Token[] memory){
         Token[] memory temp = new Token[](count);
         for (uint i = 0; i < count; i++) {
